@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ------------------------------------------------------
+// Enums
+// ------------------------------------------------------
+
+enum FormatType {
+  short_video
+  long_video
+  carousel
+  single_post
+}
+
+enum ContentStatus {
+  idea
+  scripting
+  recording
+  editing
+  ready
+  published
+}
+
+enum ContentPriority {
+  low
+  medium
+  high
+}
+
+// ------------------------------------------------------
+// Models
+// ------------------------------------------------------
+
+model User {
+  id           BigInt   @id @default(autoincrement())
+  name         String   @db.VarChar(100)
+  email        String   @unique @db.VarChar(191)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  role         String   @default("creator") @db.VarChar(20)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relasi
+  channels Channel[]
+  contents Content[]
+
+  @@map("users")
+}
+
+model Channel {
+  id         BigInt   @id @default(autoincrement())
+  userId     BigInt   @map("user_id")
+  platform   String   @db.VarChar(30)
+  handleName String   @map("handle_name") @db.VarChar(100)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relasi
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contents Content[]
+
+  @@index([userId], map: "fk_channels_user")
+  @@map("channels")
+}
+
+model Content {
+  id            BigInt          @id @default(autoincrement())
+  userId        BigInt          @map("user_id")
+  channelId     BigInt          @map("channel_id")
+  title         String          @db.VarChar(255)
+  description   String?         @db.Text
+  scriptDraft   String?         @map("script_draft") @db.Text
+  formatType    FormatType      @map("format_type")
+  status        ContentStatus   @default(idea)
+  priority      ContentPriority @default(medium)
+  scheduledDate DateTime?       @map("scheduled_date") @db.Date
+  publishedDate DateTime?       @map("published_date") @db.Date
+  publishedUrl  String?         @map("published_url") @db.VarChar(255)
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+
+  // Relasi parent
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  // Relasi child
+  checklists ContentChecklist[]
+  metrics    ContentMetric[]
+
+  @@index([userId], map: "fk_contents_user")
+  @@index([channelId], map: "fk_contents_channel")
+  @@map("contents")
+}
+
+model ContentChecklist {
+  id          BigInt   @id @default(autoincrement())
+  contentId   BigInt   @map("content_id")
+  taskName    String   @map("task_name") @db.VarChar(255)
+  isCompleted Boolean  @default(false) @map("is_completed")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relasi
+  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@index([contentId], map: "fk_checklists_content")
+  @@map("content_checklists")
+}
+
+model ContentMetric {
+  id            BigInt   @id @default(autoincrement())
+  contentId     BigInt   @map("content_id")
+  recordedAt    DateTime @map("recorded_at") @db.Date
+  viewsCount    Int      @default(0) @map("views_count")
+  likesCount    Int      @default(0) @map("likes_count")
+  commentsCount Int      @default(0) @map("comments_count")
+  sharesCount   Int      @default(0) @map("shares_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  // Relasi
+  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@index([contentId], map: "fk_metrics_content")
+  @@map("content_metrics")
+}
