@@ -1,6 +1,9 @@
 import express, { type NextFunction, type Request, type Response } from "express"
 import cors from "cors"
 import ApplicationException from "./modules/shared/application/exceptions/ApplicationException"
+import { v1ChannelRouter } from "./routes/channelRouter"
+import authMiddleware from "./modules/shared/infrastructure/middlewares/authMiddleware"
+import authRouter from "./modules/auth/infrastructure/routes/authRouter"
 
 const app = express()
 
@@ -13,6 +16,10 @@ app.get("/", (req, res) => {
     })
 })
 
+app.use(authMiddleware)
+app.use('/api', v1ChannelRouter)
+app.use('/api', authRouter)
+
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof ApplicationException) {
         return res
@@ -23,11 +30,11 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 
     } else {
-        throw err
+        // throw err
         return res
             .status(500)
             .json({
-                message: err.message
+                message: err
             })
     }
 

@@ -1,10 +1,10 @@
 import { Request } from 'express';
-import type { TUser } from '../modules/user/infrastructure/repositories/userRepository.ts';
+import { TAuthUser } from '../modules/shared/infrastructure/middlewares/authMiddleware';
 
 declare global {
     namespace Express {
         interface Request {
-            user?: TUser;
+            user?: TAuthUser
         }
     }
 }
