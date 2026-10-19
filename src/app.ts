@@ -16,7 +16,7 @@ app.get("/", (req, res) => {
     })
 })
 
-// app.use(authMiddleware)
+app.use(authMiddleware)
 app.use('/api', v1ChannelRouter)
 app.use('/api', authRouter)
 
