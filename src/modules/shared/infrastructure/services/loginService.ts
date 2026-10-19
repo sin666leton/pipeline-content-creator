@@ -1,18 +1,14 @@
-import prisma from "../../../../core/databases/prisma.ts"
-import type { TLoginPayload } from "../../../auth/infrastructures/validations/loginValidation.ts"
-import InvalidCredentialError from "../../application/exceptions/InvalidCredentialError.ts"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
-import type { TLoginResult } from "../../application/types/user.type.ts"
+import InvalidCredentialError from "../../application/exceptions/InvalidCredentialError"
+import findUserByEmailService from "./findUserByEmailService"
+import { TLoginPayload } from "../../../auth/infrastructure/validations/loginSchema"
 
-const loginService = async ({ email, password }: TLoginPayload): Promise<TLoginResult> => {
-    const user = await prisma.user.findFirst({
-        where: {
-            email: email
-        }
-    })
+const loginService = async ({ email, password }: TLoginPayload) => {
+    const user = await findUserByEmailService(email)
 
     if (!user) throw new InvalidCredentialError()
+
     const res = await bcrypt.compare(password, user.passwordHash)
 
     if (!res) throw new InvalidCredentialError()

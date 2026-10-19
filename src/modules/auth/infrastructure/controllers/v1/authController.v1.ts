@@ -1,6 +1,8 @@
 import { Request, Response } from "express"
 import registerUsecase from "../../../application/usecases/registerUsecase"
 import { TRegisterPayload } from "../../validations/registerSchema"
+import { TLoginPayload } from "../../validations/loginSchema"
+import loginUsecase from "../../../application/usecases/loginUsecase"
 
 export const registerV1 = async (req: Request<{}, {}, TRegisterPayload>, res: Response) => {
     const {email, name, password, role} = req.body
@@ -15,4 +17,23 @@ export const registerV1 = async (req: Request<{}, {}, TRegisterPayload>, res: Re
     return res
         .status(201)
         .json({})
+}
+
+export const loginV1 = async (req: Request<{}, {}, TLoginPayload>, res: Response) => {
+    const {email, password} = req.body
+
+    const result = await loginUsecase({email: email, password: password})
+
+    return res
+        .status(200)
+        .json({
+            data: {
+                user: {
+                    id: result.id,
+                    name: result.name,
+                    role: result.role
+                },
+                token: result.token
+            }
+        })
 }
