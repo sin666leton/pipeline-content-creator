@@ -3,6 +3,20 @@ import { TCreateChannelPayload } from "../validations/createChannelValidation"
 import ItemNotFoundError from "../../../shared/application/exceptions/ItemNotFoundError"
 import { Prisma } from "@prisma/client"
 
+export const findChannelById = async (id: number) => {
+    const res = await prisma.channel.findFirst({
+        select: {
+            id: true,
+            userId: true
+        },
+        where: {
+            id: id
+        }
+    })
+
+    return res
+}
+
 export const createChannel = async (payload: TCreateChannelPayload & {userId: number}) => {
     const res = await prisma.channel.create({
         data: {
