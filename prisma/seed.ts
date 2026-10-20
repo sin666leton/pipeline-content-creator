@@ -24,6 +24,33 @@ async function main() {
     },
   });
 
+  const creatorUser2 = await prisma.user.upsert({
+    where: { email: 'creator2@example.com' },
+    update: {},
+    create: {
+      name: 'Content Creator Dummy',
+      email: 'creator2@example.com',
+      passwordHash: hashedPassword,
+      role: 'creator',
+    },
+  });
+
+  await prisma.channel.create({
+    data: {
+      userId: creatorUser2.id,
+      platform: 'YouTube',
+      handleName: '@CreatorStudioID2',
+    },
+  });
+
+  await prisma.channel.create({
+    data: {
+      userId: creatorUser.id,
+      platform: 'YouTube',
+      handleName: '@CreatorStudioID2',
+    },
+  });
+
   const youtubeChannel = await prisma.channel.create({
     data: {
       userId: creatorUser.id,
