@@ -20,8 +20,14 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
 
     if (!token) throw new UnauthorizedError()
 
-    const decode = jwt.verify(token, (process.env.JWT_SECRET || "secret"))
-    req.user = (decode as unknown) as TAuthUser
+    try {
+        const decode = jwt.verify(token, (process.env.JWT_SECRET || "secret"))
+        req.user = (decode as unknown) as TAuthUser
+    } catch (error) {
+        if (error instanceof jwt.JsonWebTokenError || error instanceof jwt.TokenExpiredError) throw new UnauthorizedError()
+            
+        throw error
+    }
 
     next()
 }
