@@ -4,6 +4,37 @@ import createChannelUsecase from "../../application/usecases/createChannelUsecas
 import { createLog, deleteLog } from "../../../shared/infrastructure/services/loggerService"
 import deleteChannelUsecase from "../../application/usecases/deleteChannelUsecase"
 import { TAuthUser } from "../../../shared/infrastructure/middlewares/authMiddleware"
+import paginateChannelUsecase from "../../application/usecases/paginateChannelUsecase"
+import getListChannelUsecase from "../../application/usecases/getListChannelUsecase"
+
+export const index = async (req: Request, res: Response) => {
+    const userId = (req.user as TAuthUser).id
+    const pagination = await paginateChannelUsecase(Number(req.query.page || 1), userId)
+    
+    return res
+        .status(200)
+        .json({
+            data: pagination.data,
+            metadata: {
+                currentPage: pagination.meta.currentPage,
+                nextPage: pagination.meta.nextPage,
+                prevPage: pagination.meta.previousPage,
+                isFirstPage: pagination.meta.isFirstPage,
+                isLastPage: pagination.meta.isLastPage
+            }
+        })
+}
+
+export const list = async (req: Request, res: Response) => {
+    const userId = (req.user as TAuthUser).id
+    const channels = await getListChannelUsecase(userId)
+    
+    return res
+        .status(200)
+        .json({
+            data: channels,
+        })
+}
 
 export const store = async (req: Request<{}, {}, TCreateChannelPayload>, res: Response) => {
     const {handleName, platform} = req.body
