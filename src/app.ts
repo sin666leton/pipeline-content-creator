@@ -39,12 +39,12 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 
     } else {
-        // throw err
-        return res
-            .status(500)
-            .json({
-                message: err
-            })
+        throw err
+        // return res
+        //     .status(500)
+        //     .json({
+        //         message: err
+        //     })
     }
 
 })

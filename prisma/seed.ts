@@ -1,5 +1,6 @@
 import { PrismaClient, FormatType, ContentStatus, ContentPriority } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import channelSeeder from '../src/core/databases/seeder/channelSeeder';
 
 const prisma = new PrismaClient();
 
@@ -34,6 +35,8 @@ async function main() {
       role: 'creator',
     },
   });
+
+  await channelSeeder(Number(creatorUser.id), 100)
 
   await prisma.channel.create({
     data: {
