@@ -10,8 +10,6 @@ export const CreateUpdateContentSchema = z.object({
 
     description: z.string('Deskripsi konten tidak valid'),
 
-    scriptDraft: z.string('Draf teks tidak boleh kosong'),
-
     formatType: z.preprocess(
         (val) => (typeof val === "string" ? val.trim().toLowerCase() : val),
         z.enum(['short_video', 'long_video', 'carousel', 'single_post'], 'Format konten tidak valid, tersedia: short_video, long_video, carousel, single_post'),

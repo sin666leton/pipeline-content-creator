@@ -15,7 +15,6 @@ const updateContentUsecase = async (command: TUpdateContentCommand & {userId: nu
         channelId: Number(result.channelId),
         title: result.title,
         description: result.description,
-        scriptDraft: result.scriptDraft,
         formatType: result.formatType,
         status: result.status,
         priority: result.priority,
