@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client"
 import prisma from "../../../../core/databases/prisma"
-import { TCreateContentCommand, TDeleteContentCommand, TUpdateContentCommand } from "../../application/dtos/content.command"
+import { TCreateContentCommand, TDeleteContentCommand, TUpdateContentCommand, TUpdateStatusContentCommand } from "../../application/dtos/content.command"
 import { TGetContentQuery } from "../../application/dtos/content.query"
 import ItemNotFoundError from "../../../shared/application/exceptions/ItemNotFoundError"
 
@@ -45,6 +45,21 @@ export const paginateContent = async (query: TGetContentQuery) => {
     return res
 }
 
+export const findContentById = async (contentId: number) => {
+    const res = await prisma.content.findFirst({
+        select: {
+            id: true,
+            userId: true,
+            status: true
+        },
+        where: {
+            id: contentId
+        }
+    })
+
+    return res
+}
+
 export const createContent = async (command: TCreateContentCommand & {userId: number}) => {
     const res = await prisma.content.create({
         data: {
@@ -78,6 +93,22 @@ export const updateContent = async (command: TUpdateContentCommand & {id: number
 
         throw error
     }
+}
+
+export const updateStatusContent = async (command: TUpdateStatusContentCommand & {contentId: number, userId: number}) => {
+    const res = await prisma.content.update({
+        data: {
+            status: command.status,
+            publishedUrl: (command.status === "published" ? command.publishedUrl : null),
+            publishedDate: (command.status === "published" ? new Date() : null)
+        },
+        where: {
+            id: command.contentId,
+            userId: command.userId
+        }
+    })
+
+    return res
 }
 
 export const deleteContent = async (command: TDeleteContentCommand) => {

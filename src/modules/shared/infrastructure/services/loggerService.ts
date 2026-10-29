@@ -38,7 +38,7 @@ export const createLog = (ip: string|undefined, entity: string, userId: number| 
 
 export const updateLog = (ip: string|undefined, entity: string, userId: number| undefined, details: Record<string, any>) => {
     activityLogger.info({
-        action: "CREATE",
+        action: "UPDATE",
         ip: ip ?? "anonymous",
         entity: entity,
         performedBy: userId ?? "anonymous",

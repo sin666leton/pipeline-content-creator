@@ -16,7 +16,7 @@ export const registerV1 = async (req: Request<{}, {}, TCreateUserCommand>, res: 
 
     return res
         .status(201)
-        .json({})
+        .json()
 }
 
 export const loginV1 = async (req: Request<{}, {}, TLoginPayload>, res: Response) => {

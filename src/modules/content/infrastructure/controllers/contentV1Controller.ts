@@ -3,10 +3,12 @@ import paginateContentWithChannelUsecase from "../../application/usecases/pagina
 import { TAuthUser } from "../../../shared/infrastructure/middlewares/authMiddleware"
 import { TContentStatusType } from "../../application/dtos/content.data"
 import createContentUsecase from "../../application/usecases/createContentUsecase"
-import { TCreateContentCommand, TUpdateContentCommand } from "../../application/dtos/content.command"
+import { TCreateContentCommand, TUpdateContentCommand, TUpdateStatusContentCommand } from "../../application/dtos/content.command"
 import { createLog, deleteLog, updateLog } from "../../../shared/infrastructure/services/loggerService"
 import updateContentUsecase from "../../application/usecases/updateContentUsecase"
 import deleteContentUsecase from "../../application/usecases/deleteContentUsecase"
+import updateStatusContentUsecase from "../../application/usecases/updateStatusContentUsecase"
+import { ContentStatus } from "@prisma/client"
 
 export const index = async (req: Request<{}, {}, {}, {status?: TContentStatusType, channel_id?: string, page?: string}>, res: Response<{}, {filters: {status: TContentStatusType|undefined}}>) => {
     const {channel_id, page} = req.query
@@ -27,7 +29,7 @@ export const index = async (req: Request<{}, {}, {}, {status?: TContentStatusTyp
 }
 
 export const store = async (req: Request<{}, {}, TCreateContentCommand>, res: Response) => {
-    const {channelId, description, formatType, priority, scheduledDate, scriptDraft, title} = req.body
+    const {channelId, description, formatType, priority, scheduledDate, title} = req.body
     
     const result = await createContentUsecase({
         userId: Number((req.user as TAuthUser).id),
@@ -36,7 +38,6 @@ export const store = async (req: Request<{}, {}, TCreateContentCommand>, res: Re
         formatType: formatType,
         priority: priority,
         scheduledDate: scheduledDate,
-        scriptDraft: scriptDraft,
         title: title
     })
 
@@ -56,18 +57,17 @@ export const store = async (req: Request<{}, {}, TCreateContentCommand>, res: Re
 
 export const update = async (req: Request<{id: string}, {}, TUpdateContentCommand>, res: Response) => {
     const {id} = req.params
-    const {channelId, description, formatType, priority, scheduledDate, scriptDraft, title} = req.body
+    const {description, formatType, priority, scheduledDate, title, scriptDraft} = req.body
     
     const result = await updateContentUsecase({
         id: parseInt(id),
         userId: Number((req.user as TAuthUser).id),
-        channelId: channelId,
         description: description,
         formatType: formatType,
         priority: priority,
         scheduledDate: scheduledDate,
-        scriptDraft: scriptDraft,
-        title: title
+        title: title,
+        scriptDraft: scriptDraft
     })
 
     updateLog(
@@ -81,6 +81,31 @@ export const update = async (req: Request<{id: string}, {}, TUpdateContentComman
         .status(200)
         .json({
             data: result
+        })
+}
+
+export const updateStatus = async (req: Request<{id: string}, {}, TUpdateStatusContentCommand>, res: Response) => {
+    const {status, publishedUrl} = req.body    
+    const currentUser = (req.user as TAuthUser)
+
+    const content = await updateStatusContentUsecase({
+        contentId: parseInt(req.params.id),
+        status: status.toLowerCase() as ContentStatus,
+        userId: Number(currentUser.id),
+        publishedUrl: publishedUrl
+    })
+
+    updateLog(
+        req.ip,
+        'Status Content',
+        currentUser.id,
+        content
+    )
+
+    return res
+        .status(200)
+        .json({
+            data: content
         })
 }
 
