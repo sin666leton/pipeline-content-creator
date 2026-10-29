@@ -3,10 +3,10 @@ import cors from "cors"
 import ApplicationException from "./modules/shared/application/exceptions/ApplicationException"
 import { v1ChannelRouter } from "./routes/channelRouter"
 import authMiddleware from "./modules/shared/infrastructure/middlewares/authMiddleware"
-import authRouter from "./modules/auth/infrastructure/routes/authRouter"
 import ValidationError from "./modules/shared/application/exceptions/ValidationError"
 import contentRouter from "./routes/contentRouter"
 import taskRouter from "./routes/taskRouter"
+import authRouter from "./routes/authRouter"
 
 const app = express()
 

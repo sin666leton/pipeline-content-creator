@@ -1,10 +1,10 @@
 import { Request, Response } from "express"
 import registerUsecase from "../../../application/usecases/registerUsecase"
-import { TRegisterPayload } from "../../validations/registerSchema"
 import { TLoginPayload } from "../../validations/loginSchema"
 import loginUsecase from "../../../application/usecases/loginUsecase"
+import { TCreateUserCommand } from "../../../application/dtos/auth.command"
 
-export const registerV1 = async (req: Request<{}, {}, TRegisterPayload>, res: Response) => {
+export const registerV1 = async (req: Request<{}, {}, TCreateUserCommand>, res: Response) => {
     const {email, name, password, role} = req.body
     
     await registerUsecase({
