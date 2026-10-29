@@ -7,3 +7,8 @@ export type TGetContentQuery = {
     status?: TContentStatusType,
     channelId?: number,
 }
+
+export type TEditorUpdateContentCommand = {
+    contentId: number,
+    userId: number
+}
