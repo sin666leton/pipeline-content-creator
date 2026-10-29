@@ -21,7 +21,8 @@ const registerUserService = async (payload: TCreateUserCommand) => {
         data: {
             email: payload.email,
             name: payload.name,
-            passwordHash: hashPass
+            passwordHash: hashPass,
+            role: payload.role
         }
     })
 }
