@@ -1,9 +1,9 @@
 import prisma from "../../../../core/databases/prisma"
+import { TCreateUserCommand } from "../../application/dtos/auth.command"
 import EmailAlreadyRegisteredError from "../../application/errors/EmailAlreadyRegisteredError"
 import bcrypt from "bcrypt"
-import { TRegisterPayload } from "../validations/registerSchema"
 
-const registerUserService = async (payload: TRegisterPayload) => {
+const registerUserService = async (payload: TCreateUserCommand) => {
     const user = await prisma.user.findFirst({
         select: {
             email: true,

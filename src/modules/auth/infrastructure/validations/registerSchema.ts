@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const RoleEnum = z.enum(["editor", "creator"]);
 
-export const registerSchema = z.object({
+export const RegisterSchema = z.object({
   name: z
     .string({ error: "Nama wajib diisi" }) // Menggunakan properti error yang baru
     .min(3, "Nama minimal harus terdiri dari 3 karakter")
@@ -20,5 +20,3 @@ export const registerSchema = z.object({
 
   role: RoleEnum.default("creator"),
 });
-
-export type TRegisterPayload = z.infer<typeof registerSchema>;
