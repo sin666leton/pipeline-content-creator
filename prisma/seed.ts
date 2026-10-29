@@ -1,5 +1,6 @@
 import { PrismaClient, FormatType, ContentStatus, ContentPriority } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import channelSeeder from '../src/core/databases/seeder/channelSeeder';
 
 const prisma = new PrismaClient();
 
@@ -21,6 +22,57 @@ async function main() {
       email: 'creator@example.com',
       passwordHash: hashedPassword,
       role: 'creator',
+    },
+  });
+
+  const creatorUser2 = await prisma.user.upsert({
+    where: { email: 'creator2@example.com' },
+    update: {},
+    create: {
+      name: 'Content Creator Dummy',
+      email: 'creator2@example.com',
+      passwordHash: hashedPassword,
+      role: 'creator',
+    },
+  });
+
+  const editorUser = await prisma.user.upsert({
+    where: { email: 'editor@example.com' },
+    update: {},
+    create: {
+      name: 'Editor Creator Dummy',
+      email: 'editor@example.com',
+      passwordHash: hashedPassword,
+      role: 'editor',
+    },
+  });
+
+  const editorUser2 = await prisma.user.upsert({
+    where: { email: 'editor2@example.com' },
+    update: {},
+    create: {
+      name: 'Editor Creator Dummy',
+      email: 'editor2@example.com',
+      passwordHash: hashedPassword,
+      role: 'editor',
+    },
+  })
+
+  await channelSeeder(Number(creatorUser.id), 100)
+
+  await prisma.channel.create({
+    data: {
+      userId: creatorUser2.id,
+      platform: 'YouTube',
+      handleName: '@CreatorStudioID2',
+    },
+  });
+
+  await prisma.channel.create({
+    data: {
+      userId: creatorUser.id,
+      platform: 'YouTube',
+      handleName: '@CreatorStudioID2',
     },
   });
 
@@ -55,9 +107,9 @@ await prisma.content.create({
       publishedUrl: 'https://youtube.com/shorts/dummy-short-url-1',
       checklists: {
         create: [
-          { taskName: 'Riset tren hashtag coding', isCompleted: true },
-          { taskName: 'Rekam video & screen recording', isCompleted: true },
-          { taskName: 'Render & ekspor format 9:16', isCompleted: true },
+          { userId: creatorUser.id, taskName: 'Riset tren hashtag coding', isCompleted: true },
+          { userId: creatorUser.id, taskName: 'Rekam video & screen recording', isCompleted: true },
+          { userId: creatorUser.id, taskName: 'Render & ekspor format 9:16', isCompleted: true },
         ],
       },
       metrics: {
@@ -87,9 +139,9 @@ await prisma.content.create({
       scheduledDate: new Date('2026-10-16'),
       checklists: {
         create: [
-          { taskName: 'Buat outline 7 slide', isCompleted: true },
-          { taskName: 'Desain visual slide di Figma/Canva', isCompleted: true },
-          { taskName: 'Tulis caption & CTA', isCompleted: false },
+          { userId: editorUser.id, taskName: 'Buat outline 7 slide', isCompleted: true },
+          { userId: editorUser.id, taskName: 'Desain visual slide di Figma/Canva', isCompleted: true },
+          { userId: editorUser.id, taskName: 'Tulis caption & CTA', isCompleted: false },
         ],
       },
     },
@@ -108,9 +160,9 @@ await prisma.content.create({
       scheduledDate: new Date('2026-10-25'),
       checklists: {
         create: [
-          { taskName: 'Rancang diagram arsitektur modul', isCompleted: true },
-          { taskName: 'Tulis naskah lengkap sesi 1 - 3', isCompleted: false },
-          { taskName: 'Siapkan repo starter template', isCompleted: false },
+          { userId: editorUser2.id, taskName: 'Rancang diagram arsitektur modul', isCompleted: true },
+          { userId: editorUser2.id, taskName: 'Tulis naskah lengkap sesi 1 - 3', isCompleted: false },
+          { userId: editorUser2.id, taskName: 'Siapkan repo starter template', isCompleted: false },
         ],
       },
     },

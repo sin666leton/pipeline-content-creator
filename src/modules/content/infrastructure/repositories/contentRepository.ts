@@ -1,0 +1,131 @@
+import { Prisma } from "@prisma/client"
+import prisma from "../../../../core/databases/prisma"
+import { TCreateContentCommand, TDeleteContentCommand, TUpdateContentCommand, TUpdateStatusContentCommand } from "../../application/dtos/content.command"
+import { TGetContentQuery } from "../../application/dtos/content.query"
+import ItemNotFoundError from "../../../shared/application/exceptions/ItemNotFoundError"
+
+export const paginateContent = async (query: TGetContentQuery) => {
+    const res = await prisma.content.paginate({
+        select: {
+            id: true,
+            userId: true,
+            channelId: true,
+            title: true,
+            formatType: true,
+            status: true,
+            priority: true,
+            scheduledDate: true,
+        
+            channel: {
+                select: {
+                    id: true,
+                    handleName: true,
+                    platform: true
+                }
+            }
+        },
+        where: {
+            userId: query.userId,
+            ...(query.channelId && {
+                channelId: query.channelId
+            }),
+            ...(query.status && {
+                status: query.status
+            })
+        },
+        orderBy: {
+            id: "desc",
+        },
+    }).withPages({
+        limit: query.perPage,
+        page: query.currentPage,
+        includePageCount: true
+    })
+
+    return res
+}
+
+export const findContentById = async (contentId: number) => {
+    const res = await prisma.content.findFirst({
+        select: {
+            id: true,
+            userId: true,
+            status: true
+        },
+        where: {
+            id: contentId
+        }
+    })
+
+    return res
+}
+
+export const createContent = async (command: TCreateContentCommand & {userId: number}) => {
+    const res = await prisma.content.create({
+        data: {
+            ...command,
+            status: 'idea',
+            scheduledDate: command.scheduledDate ? new Date(command.scheduledDate) : null
+        }
+    })
+
+    return res
+}
+
+export const updateContent = async (command: TUpdateContentCommand & {id: number, userId: number}) => {
+    try {
+        const res = await prisma.content.update({
+            data: {
+                ...command,
+                scheduledDate: command.scheduledDate ? new Date(command.scheduledDate) : null
+            },
+            where: {
+                id: command.id,
+                userId: command.userId
+            }
+        })
+    
+        return res
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === "P2025") throw new ItemNotFoundError("Content")
+        }
+
+        throw error
+    }
+}
+
+export const updateStatusContent = async (command: TUpdateStatusContentCommand & {contentId: number, userId: number}) => {
+    const res = await prisma.content.update({
+        data: {
+            status: command.status,
+            publishedUrl: (command.status === "published" ? command.publishedUrl : null),
+            publishedDate: (command.status === "published" ? new Date() : null)
+        },
+        where: {
+            id: command.contentId,
+            userId: command.userId
+        }
+    })
+
+    return res
+}
+
+export const deleteContent = async (command: TDeleteContentCommand) => {
+    try {
+        const res = await prisma.content.delete({
+            where: {
+            id: command.id,
+            userId: command.userId
+            }
+        })
+
+        return res
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === "P2025") throw new ItemNotFoundError("Content")
+        }
+
+        throw error
+    }
+}

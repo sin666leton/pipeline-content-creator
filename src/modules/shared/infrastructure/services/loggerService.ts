@@ -1,4 +1,11 @@
 import { activityLogger } from "../../../../core/logger/pino"
+import { Request } from "express"
+
+export const requestLog = (request: Request) => {
+    activityLogger.info({
+        request: request
+    })
+}
 
 export const loginLog = (ip: string|undefined, email: string, status: boolean) => {
     activityLogger.info({
@@ -31,7 +38,7 @@ export const createLog = (ip: string|undefined, entity: string, userId: number| 
 
 export const updateLog = (ip: string|undefined, entity: string, userId: number| undefined, details: Record<string, any>) => {
     activityLogger.info({
-        action: "CREATE",
+        action: "UPDATE",
         ip: ip ?? "anonymous",
         entity: entity,
         performedBy: userId ?? "anonymous",
