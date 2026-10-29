@@ -6,6 +6,7 @@ import authMiddleware from "./modules/shared/infrastructure/middlewares/authMidd
 import authRouter from "./modules/auth/infrastructure/routes/authRouter"
 import ValidationError from "./modules/shared/application/exceptions/ValidationError"
 import contentRouter from "./routes/contentRouter"
+import taskRouter from "./routes/taskRouter"
 
 const app = express()
 
@@ -22,6 +23,7 @@ app.use('/api', authRouter)
 app.use(authMiddleware)
 app.use('/api', v1ChannelRouter)
 app.use('/api', contentRouter)
+app.use('/api', taskRouter)
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof ApplicationException) {

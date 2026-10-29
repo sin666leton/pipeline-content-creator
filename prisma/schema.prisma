@@ -46,8 +46,9 @@ model User {
   createdAt    DateTime @default(now()) @map("created_at")
 
   // Relasi
-  channels Channel[]
-  contents Content[]
+  channels          Channel[]
+  contents          Content[]
+  contentChecklists ContentChecklist[]
 
   @@map("users")
 }
@@ -98,6 +99,7 @@ model Content {
 
 model ContentChecklist {
   id          BigInt   @id @default(autoincrement())
+  userId      BigInt   @map("user_id")
   contentId   BigInt   @map("content_id")
   taskName    String   @map("task_name") @db.VarChar(255)
   isCompleted Boolean  @default(false) @map("is_completed")
@@ -105,8 +107,10 @@ model ContentChecklist {
 
   // Relasi
   content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([contentId], map: "fk_checklists_content")
+  @@index([userId], map: "fk_checklists_user")
   @@map("content_checklists")
 }
 
