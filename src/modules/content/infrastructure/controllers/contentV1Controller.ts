@@ -27,7 +27,7 @@ export const index = async (req: Request<{}, {}, {}, {status?: TContentStatusTyp
 }
 
 export const store = async (req: Request<{}, {}, TCreateContentCommand>, res: Response) => {
-    const {channelId, description, formatType, priority, scheduledDate, scriptDraft, title} = req.body
+    const {channelId, description, formatType, priority, scheduledDate, title} = req.body
     
     const result = await createContentUsecase({
         userId: Number((req.user as TAuthUser).id),
@@ -36,7 +36,6 @@ export const store = async (req: Request<{}, {}, TCreateContentCommand>, res: Re
         formatType: formatType,
         priority: priority,
         scheduledDate: scheduledDate,
-        scriptDraft: scriptDraft,
         title: title
     })
 
@@ -56,7 +55,7 @@ export const store = async (req: Request<{}, {}, TCreateContentCommand>, res: Re
 
 export const update = async (req: Request<{id: string}, {}, TUpdateContentCommand>, res: Response) => {
     const {id} = req.params
-    const {channelId, description, formatType, priority, scheduledDate, scriptDraft, title} = req.body
+    const {channelId, description, formatType, priority, scheduledDate, title} = req.body
     
     const result = await updateContentUsecase({
         id: parseInt(id),
@@ -66,7 +65,6 @@ export const update = async (req: Request<{id: string}, {}, TUpdateContentComman
         formatType: formatType,
         priority: priority,
         scheduledDate: scheduledDate,
-        scriptDraft: scriptDraft,
         title: title
     })
 
