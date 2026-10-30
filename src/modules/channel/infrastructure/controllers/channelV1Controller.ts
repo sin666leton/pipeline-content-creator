@@ -13,16 +13,7 @@ export const index = async (req: Request, res: Response) => {
     
     return res
         .status(200)
-        .json({
-            data: pagination.data,
-            metadata: {
-                currentPage: pagination.meta.currentPage,
-                nextPage: pagination.meta.nextPage,
-                prevPage: pagination.meta.previousPage,
-                isFirstPage: pagination.meta.isFirstPage,
-                isLastPage: pagination.meta.isLastPage
-            }
-        })
+        .json(pagination)
 }
 
 export const list = async (req: Request, res: Response) => {

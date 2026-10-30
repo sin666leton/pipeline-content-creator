@@ -11,7 +11,10 @@ const paginateChannelUsecase = async (currentPage: number, userId: number) => {
                 userId: Number(channels.userId)
             }
         }),
-        meta: meta
+        metadata: {
+            ...meta,
+            pages: Array.from({ length: meta.pageCount }, (_, i) => i + 1)
+        }
     }
 }
 

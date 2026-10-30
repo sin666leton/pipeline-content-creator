@@ -7,6 +7,9 @@ export const paginateChannel = async (currentPage: number, perPage: number, user
     const res = await prisma.channel.paginate({
         where: {
             userId: Number(userId)
+        },
+        orderBy: {
+            id: "desc"
         }
     }).withPages({
         limit: perPage,
