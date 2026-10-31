@@ -1,5 +1,4 @@
 import type {Request, Response} from "express"
-import paginateContentWithChannelUsecase from "../../application/usecases/paginateContentWithChannelUsecase"
 import { TAuthUser } from "../../../shared/infrastructure/middlewares/authMiddleware"
 import { TContentStatusType } from "../../application/dtos/content.data"
 import createContentUsecase from "../../application/usecases/createContentUsecase"
@@ -9,22 +8,38 @@ import updateContentUsecase from "../../application/usecases/updateContentUsecas
 import deleteContentUsecase from "../../application/usecases/deleteContentUsecase"
 import updateStatusContentUsecase from "../../application/usecases/updateStatusContentUsecase"
 import { ContentStatus } from "@prisma/client"
+import getContentWithChannelUsecase from "../../application/usecases/getContentWithChannelUsecase"
+import findContentWithChecklistsUsecase from "../../application/usecases/findContentWithChecklistsUsecase"
 
-export const index = async (req: Request<{}, {}, {}, {status?: TContentStatusType, channel_id?: string, page?: string}>, res: Response<{}, {filters: {status: TContentStatusType|undefined}}>) => {
-    const {channel_id, page} = req.query
+export const index = async (req: Request<{}, {}, {}, {status?: TContentStatusType, channel_id?: string, format?: string, page?: string}>, res: Response<{}, {filters: {status: TContentStatusType|undefined}}>) => {
+    const {channel_id, page, format} = req.query
 
-    const result = await paginateContentWithChannelUsecase({
-        currentPage: page ? Number(page) : 1,
-        perPage: 10,
+    const result = await getContentWithChannelUsecase({
         status: res.locals.filters ? res.locals.filters.status : undefined,
         userId: (req.user as TAuthUser).id,
-        channelId: Number(channel_id)
+        channelId: Number(channel_id),
+        format: format
     })
     
     return res
         .status(200)
         .json({
             data: result
+        })
+}
+
+export const read = async (req: Request<{id: string}>, res: Response) => {
+    const {id} = req.params
+
+    const content = await findContentWithChecklistsUsecase({
+        contentId: parseInt(id),
+        userId: Number((req.user as TAuthUser).id)
+    })
+
+    return res
+        .status(200)
+        .json({
+            data: content
         })
 }
 

@@ -39,14 +39,17 @@ export const CreateContentSchema = z.object({
 
 export const UpdateContentSchema = z.object({
     title: z.string('Judul konten tidak boleh kosong')
-        .max(255, 'Judul konten tidak lebih dari 255 karakter'),
+        .max(255, 'Judul konten tidak lebih dari 255 karakter')
+        .optional(),
 
-    description: z.string('Deskripsi konten tidak valid'),
+    description: z.string('Deskripsi konten tidak valid')
+        .optional(),
 
     formatType: z.preprocess(
         (val) => (typeof val === "string" ? val.trim().toLowerCase() : val),
         z.enum(['short_video', 'long_video', 'carousel', 'single_post'], 'Format konten tidak valid, tersedia: short_video, long_video, carousel, single_post'),
-    ),
+    )
+    .optional(),
 
     scriptDraft: z.string('Draft tidak valid')
         .optional(),
@@ -54,7 +57,8 @@ export const UpdateContentSchema = z.object({
     priority: z.preprocess(
         (val) => (typeof val === "string" ? val.trim().toLowerCase() : val),
         z.enum(['low', 'medium', 'high'], 'Prioritas konten tidak valid, tersedia: low, medium, high'),
-    ),
+    )
+    .optional(),
 
     scheduledDate: z.string()
         .refine((date) => {
@@ -70,7 +74,8 @@ export const UpdateContentSchema = z.object({
         {
             message: "Jadwal tayang seharusnya lebih dari waktu saat ini",
         }
-    ),
+    )
+    .optional(),
 });
 
 export const UpdateStatusContentSchema = z.object({

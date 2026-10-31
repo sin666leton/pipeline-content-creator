@@ -1,11 +1,11 @@
-import { Prisma } from "@prisma/client"
+import { FormatType, Prisma } from "@prisma/client"
 import prisma from "../../../../core/databases/prisma"
 import { TCreateContentCommand, TDeleteContentCommand, TUpdateContentCommand, TUpdateStatusContentCommand } from "../../application/dtos/content.command"
-import { TGetContentQuery } from "../../application/dtos/content.query"
+import { TFindContentChecklistsQuery, TGetContentQuery } from "../../application/dtos/content.query"
 import ItemNotFoundError from "../../../shared/application/exceptions/ItemNotFoundError"
 
-export const paginateContent = async (query: TGetContentQuery) => {
-    const res = await prisma.content.paginate({
+export const getContent = async (query: TGetContentQuery) => {
+    const res = await prisma.content.findMany({
         select: {
             id: true,
             userId: true,
@@ -15,7 +15,6 @@ export const paginateContent = async (query: TGetContentQuery) => {
             status: true,
             priority: true,
             scheduledDate: true,
-        
             channel: {
                 select: {
                     id: true,
@@ -29,17 +28,72 @@ export const paginateContent = async (query: TGetContentQuery) => {
             ...(query.channelId && {
                 channelId: query.channelId
             }),
-            ...(query.status && {
-                status: query.status
-            })
+            ...(query.format && {
+                formatType: query.format as FormatType
+            }),
+            AND: [
+                {
+                    status: {
+                        not: "published"
+                    }
+                },
+                ...(query.status ? [{
+                    status: query.status
+                }] : [])
+            ]
         },
         orderBy: {
-            id: "desc",
+            id: "desc"
+        }
+    });
+
+    return res
+}
+
+export const findContentWithChecklists = async (query: TFindContentChecklistsQuery) => {
+    const res = await prisma.content.findFirst({
+        select: {
+            id: true,
+            userId: true,
+            channelId: true,
+            description: true,
+            title: true,
+            formatType: true,
+            status: true,
+            priority: true,
+            scheduledDate: true,
+            publishedDate: true,
+            publishedUrl: true,
+            createdAt: true,
+            updatedAt: true,
+            scriptDraft: true,
+            channel: {
+                select: {
+                    id: true,
+                    handleName: true,
+                    platform: true
+                }
+            },
+            checklists: {
+                select: {
+                    id: true,
+                    contentId: true,
+                    taskName: true,
+                    userId: true,
+                    isCompleted: true,
+                    user: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    },
+                }
+            }
         },
-    }).withPages({
-        limit: query.perPage,
-        page: query.currentPage,
-        includePageCount: true
+        where: {
+            id: query.contentId,
+            userId: query.userId
+        },
     })
 
     return res
