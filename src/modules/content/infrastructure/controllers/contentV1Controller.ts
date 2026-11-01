@@ -10,15 +10,33 @@ import updateStatusContentUsecase from "../../application/usecases/updateStatusC
 import { ContentStatus } from "@prisma/client"
 import getContentWithChannelUsecase from "../../application/usecases/getContentWithChannelUsecase"
 import findContentWithChecklistsUsecase from "../../application/usecases/findContentWithChecklistsUsecase"
+import paginateContentUsecase from "../../application/usecases/paginateContentUsecase"
 
-export const index = async (req: Request<{}, {}, {}, {status?: TContentStatusType, channel_id?: string, format?: string, page?: string}>, res: Response<{}, {filters: {status: TContentStatusType|undefined}}>) => {
+export const paginate = async (req: Request<{}, {}, {}, {page?: string, channel_id?: string, format?: string, status?: string}>, res: Response) => {
+    const {page, channel_id, format, status} = req.query
+
+    const result = await paginateContentUsecase({
+        page: page ? parseInt(page) : 1,
+        userId: Number((req.user as TAuthUser).id),
+        channelId: channel_id ? parseInt(channel_id) : undefined,
+        format: format,
+        status: status
+    })
+    
+    return res
+        .status(200)
+        .json(result)
+}
+
+export const index = async (req: Request<{}, {}, {}, {channel_id?: string, format?: string, page?: string, status?: string}>, res: Response<{}, {filters: {status: TContentStatusType|undefined}}>) => {
     const {channel_id, page, format} = req.query
+
 
     const result = await getContentWithChannelUsecase({
         status: res.locals.filters ? res.locals.filters.status : undefined,
         userId: (req.user as TAuthUser).id,
         channelId: Number(channel_id),
-        format: format
+        format: format,
     })
     
     return res

@@ -16,3 +16,11 @@ export type TEditorUpdateContentCommand = {
     contentId: number,
     userId: number
 }
+
+export type TPaginateContentQuery = {
+    page: number,
+    userId: number,
+    status?: string,
+    channelId?: number,
+    format?: string
+}

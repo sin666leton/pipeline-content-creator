@@ -1,10 +1,13 @@
 import { FormatType, Prisma } from "@prisma/client"
 import prisma from "../../../../core/databases/prisma"
 import { TCreateContentCommand, TDeleteContentCommand, TUpdateContentCommand, TUpdateStatusContentCommand } from "../../application/dtos/content.command"
-import { TFindContentChecklistsQuery, TGetContentQuery } from "../../application/dtos/content.query"
+import { TFindContentChecklistsQuery, TGetContentQuery, TPaginateContentQuery } from "../../application/dtos/content.query"
 import ItemNotFoundError from "../../../shared/application/exceptions/ItemNotFoundError"
+import { TContentStatusType } from "../../application/dtos/content.data"
 
 export const getContent = async (query: TGetContentQuery) => {
+    query.status === "published" ? query.status = undefined : query.status = query.status
+
     const res = await prisma.content.findMany({
         select: {
             id: true,
@@ -31,21 +34,60 @@ export const getContent = async (query: TGetContentQuery) => {
             ...(query.format && {
                 formatType: query.format as FormatType
             }),
-            AND: [
-                {
-                    status: {
-                        not: "published"
-                    }
-                },
-                ...(query.status ? [{
-                    status: query.status
-                }] : [])
-            ]
+            status: query.status ? {
+                equals: query.status as TContentStatusType,
+                not: "published"
+            }
+            : {
+                not: "published"
+            }
         },
         orderBy: {
             id: "desc"
         }
     });
+
+    return res
+}
+
+export const paginateContent = async (query: TPaginateContentQuery & {take: number}) => {
+    const res = await prisma.content.paginate({
+        select: {
+            id: true,
+            userId: true,
+            channelId: true,
+            title: true,
+            formatType: true,
+            status: true,
+            priority: true,
+            scheduledDate: true,
+            channel: {
+                select: {
+                    id: true,
+                    handleName: true,
+                    platform: true
+                }
+            }
+        },
+        where: {
+            userId: query.userId,
+            ...(query.channelId && {
+                channelId: query.channelId
+            }),
+            ...(query.format && {
+                formatType: query.format as FormatType
+            }),
+            status: query.status as TContentStatusType ?? "published"
+        },
+        orderBy: {
+            id: "desc"
+        }
+    })
+    .withPages({
+        page: query.page,
+        limit: query.take,
+        includePageCount: true
+    })
 
     return res
 }
