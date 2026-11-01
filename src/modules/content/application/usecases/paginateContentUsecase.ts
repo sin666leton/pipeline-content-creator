@@ -17,6 +17,7 @@ const paginateContentUsecase = async (query: TPaginateContentQuery) => {
             content: {
                 id: Number(content.id),
                 title: content.title,
+                description: content.description,
                 priority: content.priority,
                 format: content.formatType,
                 status: content.status,

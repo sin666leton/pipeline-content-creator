@@ -17,6 +17,7 @@ export const getContent = async (query: TGetContentQuery) => {
             formatType: true,
             status: true,
             priority: true,
+            scriptDraft: true,
             scheduledDate: true,
             channel: {
                 select: {
@@ -63,6 +64,7 @@ export const paginateContent = async (query: TPaginateContentQuery & {take: numb
             status: true,
             priority: true,
             scheduledDate: true,
+            description: true,
             channel: {
                 select: {
                     id: true,
