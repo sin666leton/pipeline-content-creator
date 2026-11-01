@@ -12,13 +12,17 @@ import getContentWithChannelUsecase from "../../application/usecases/getContentW
 import findContentWithChecklistsUsecase from "../../application/usecases/findContentWithChecklistsUsecase"
 import paginateContentUsecase from "../../application/usecases/paginateContentUsecase"
 
-export const paginate = async (req: Request<{}, {}, {}, {page?: string, channel_id?: string, format?: string, status?: string}>, res: Response) => {
-    const {page, channel_id, format, status} = req.query
+export const paginate = async (
+    req: Request<{}, {}, {}, {page?: string, platform?: string, format?: string, status?: string}>,
+    res: Response<{}, {filters: {status: TContentStatusType|undefined, platform: string|undefined, format: string|undefined}}>
+) => {
+    const {page} = req.query
+    const {status, platform, format} = res.locals.filters
 
     const result = await paginateContentUsecase({
         page: page ? parseInt(page) : 1,
         userId: Number((req.user as TAuthUser).id),
-        channelId: channel_id ? parseInt(channel_id) : undefined,
+        platform: platform,
         format: format,
         status: status
     })
@@ -28,14 +32,17 @@ export const paginate = async (req: Request<{}, {}, {}, {page?: string, channel_
         .json(result)
 }
 
-export const index = async (req: Request<{}, {}, {}, {channel_id?: string, format?: string, page?: string, status?: string}>, res: Response<{}, {filters: {status: TContentStatusType|undefined}}>) => {
-    const {channel_id, page, format} = req.query
-
+export const index = async (
+    req: Request<{}, {}, {}, {format?: string, status?: string}>,
+    res: Response<{}, {filters: {status: TContentStatusType|undefined, platform: string|undefined}}>
+) => {
+    const {format} = req.query
+    const {status, platform} = res.locals.filters
 
     const result = await getContentWithChannelUsecase({
-        status: res.locals.filters ? res.locals.filters.status : undefined,
+        status: status,
         userId: (req.user as TAuthUser).id,
-        channelId: Number(channel_id),
+        platform: platform,
         format: format,
     })
     

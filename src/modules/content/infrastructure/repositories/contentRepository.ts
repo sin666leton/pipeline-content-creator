@@ -28,8 +28,10 @@ export const getContent = async (query: TGetContentQuery) => {
         },
         where: {
             userId: query.userId,
-            ...(query.channelId && {
-                channelId: query.channelId
+            ...(query.platform && {
+                channel: {
+                    platform: query.platform
+                }
             }),
             ...(query.format && {
                 formatType: query.format as FormatType
@@ -71,13 +73,17 @@ export const paginateContent = async (query: TPaginateContentQuery & {take: numb
         },
         where: {
             userId: query.userId,
-            ...(query.channelId && {
-                channelId: query.channelId
+            ...(query.platform && {
+                channel: {
+                    platform: query.platform
+                }
             }),
             ...(query.format && {
                 formatType: query.format as FormatType
             }),
-            status: query.status as TContentStatusType ?? "published"
+            ...(query.status && {
+                status: query.status as TContentStatusType
+            }),
         },
         orderBy: {
             id: "desc"

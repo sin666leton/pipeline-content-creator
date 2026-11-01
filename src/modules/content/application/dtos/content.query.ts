@@ -1,9 +1,17 @@
 import { TContentStatusType } from "./content.data";
 
+export type TPaginateContentQuery = {
+    page: number,
+    userId: number,
+    status?: string,
+    platform?: string,
+    format?: string
+}
+
 export type TGetContentQuery = {
     userId: number,
     status?: TContentStatusType,
-    channelId?: number,
+    platform?: string,
     format?: string
 }
 
@@ -15,12 +23,4 @@ export type TFindContentChecklistsQuery = {
 export type TEditorUpdateContentCommand = {
     contentId: number,
     userId: number
-}
-
-export type TPaginateContentQuery = {
-    page: number,
-    userId: number,
-    status?: string,
-    channelId?: number,
-    format?: string
 }

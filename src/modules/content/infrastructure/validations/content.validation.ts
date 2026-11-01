@@ -109,5 +109,18 @@ export const FilterContentSchema = z.object({
         val => typeof val === "string" ? val.toLowerCase() : val,
         z.enum(ContentStatus)
             .optional()
-    )
+            .catch(undefined)
+    ),
+    platform: z.preprocess(
+        val => typeof val === "string" ? val.toLowerCase() : val,
+        z.enum(['tiktok', 'youtube', 'instagram', 'linkedin'])
+            .optional()
+            .catch(undefined)
+    ),
+    format: z.preprocess(
+        val => typeof val === "string" ? val.toLowerCase() : val,
+        z.enum(['short_video', 'long_video', 'carousel', 'single_post'])
+            .optional()
+            .catch(undefined)
+    ),
 })
