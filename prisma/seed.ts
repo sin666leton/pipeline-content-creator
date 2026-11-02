@@ -58,7 +58,7 @@ async function main() {
     },
   })
 
-  await channelSeeder(Number(creatorUser.id), 100)
+  // await channelSeeder(Number(creatorUser.id), 100)
 
   await prisma.channel.create({
     data: {

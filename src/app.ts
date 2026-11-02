@@ -7,6 +7,7 @@ import ValidationError from "./modules/shared/application/exceptions/ValidationE
 import contentRouter from "./routes/contentRouter"
 import taskRouter from "./routes/taskRouter"
 import authRouter from "./routes/authRouter"
+import userRouter from "./routes/userRouter"
 
 const app = express()
 
@@ -24,6 +25,7 @@ app.use(authMiddleware)
 app.use('/api', v1ChannelRouter)
 app.use('/api', contentRouter)
 app.use('/api', taskRouter)
+app.use('/api', userRouter)
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof ApplicationException) {

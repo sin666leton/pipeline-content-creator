@@ -1,25 +1,25 @@
 import { TGetContentQuery } from "../dtos/content.query"
-import { paginateContent } from "../../infrastructure/repositories/contentRepository"
+import { getContent } from "../../infrastructure/repositories/contentRepository"
 import getUserRoleService from "../../../shared/infrastructure/services/getUserRoleService"
-import { paginateEditorContent } from "../../infrastructure/repositories/contentEditorRepository"
+import { getContentWhereEditorBelongsTo } from "../../infrastructure/repositories/contentEditorRepository"
 import RoleNotMatchingError from "../../../shared/application/exceptions/RoleNotMatchingError"
 
-const paginateContentWithChannelUsecase = async (query: TGetContentQuery) => {
+const getContentWithChannelUsecase = async (query: TGetContentQuery) => {
     const userRole = await getUserRoleService(query.userId)
 
     switch (userRole) {
         case "creator":
-            const [contents] = await paginateContent(query)
+            const contents = await getContent(query)
 
             return contents.map(content => ({
                 content: {
                     id: Number(content.id),
-                    creatorId: Number(content.userId),
                     title: content.title,
                     formatType: content.formatType,
                     status: content.status,
                     priority: content.priority,
                     scheduledDate: content.scheduledDate,
+                    scriptDraft: content.scriptDraft
                 },
                 channel: {
                     id: Number(content.channelId),
@@ -29,7 +29,7 @@ const paginateContentWithChannelUsecase = async (query: TGetContentQuery) => {
             }))            
 
         case "editor":
-            const [checklists] = await paginateEditorContent(query)
+            const checklists = await getContentWhereEditorBelongsTo(query)
 
             return checklists.map(checklist => ({
                 content: {
@@ -55,4 +55,4 @@ const paginateContentWithChannelUsecase = async (query: TGetContentQuery) => {
 
 }
 
-export default paginateContentWithChannelUsecase
+export default getContentWithChannelUsecase

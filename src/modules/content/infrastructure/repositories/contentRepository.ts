@@ -1,11 +1,14 @@
-import { Prisma } from "@prisma/client"
+import { FormatType, Prisma } from "@prisma/client"
 import prisma from "../../../../core/databases/prisma"
 import { TCreateContentCommand, TDeleteContentCommand, TUpdateContentCommand, TUpdateStatusContentCommand } from "../../application/dtos/content.command"
-import { TGetContentQuery } from "../../application/dtos/content.query"
+import { TFindContentChecklistsQuery, TGetContentQuery, TPaginateContentQuery } from "../../application/dtos/content.query"
 import ItemNotFoundError from "../../../shared/application/exceptions/ItemNotFoundError"
+import { TContentStatusType } from "../../application/dtos/content.data"
 
-export const paginateContent = async (query: TGetContentQuery) => {
-    const res = await prisma.content.paginate({
+export const getContent = async (query: TGetContentQuery) => {
+    query.status === "published" ? query.status = undefined : query.status = query.status
+
+    const res = await prisma.content.findMany({
         select: {
             id: true,
             userId: true,
@@ -14,8 +17,8 @@ export const paginateContent = async (query: TGetContentQuery) => {
             formatType: true,
             status: true,
             priority: true,
+            scriptDraft: true,
             scheduledDate: true,
-        
             channel: {
                 select: {
                     id: true,
@@ -26,20 +29,121 @@ export const paginateContent = async (query: TGetContentQuery) => {
         },
         where: {
             userId: query.userId,
-            ...(query.channelId && {
-                channelId: query.channelId
+            ...(query.platform && {
+                channel: {
+                    platform: query.platform
+                }
             }),
-            ...(query.status && {
-                status: query.status
-            })
+            ...(query.format && {
+                formatType: query.format as FormatType
+            }),
+            status: query.status ? {
+                equals: query.status as TContentStatusType,
+                not: "published"
+            }
+            : {
+                not: "published"
+            }
         },
         orderBy: {
-            id: "desc",
+            id: "desc"
+        }
+    });
+
+    return res
+}
+
+export const paginateContent = async (query: TPaginateContentQuery & {take: number}) => {
+    const res = await prisma.content.paginate({
+        select: {
+            id: true,
+            userId: true,
+            channelId: true,
+            title: true,
+            formatType: true,
+            status: true,
+            priority: true,
+            scheduledDate: true,
+            description: true,
+            channel: {
+                select: {
+                    id: true,
+                    handleName: true,
+                    platform: true
+                }
+            }
         },
-    }).withPages({
-        limit: query.perPage,
-        page: query.currentPage,
+        where: {
+            userId: query.userId,
+            ...(query.platform && {
+                channel: {
+                    platform: query.platform
+                }
+            }),
+            ...(query.format && {
+                formatType: query.format as FormatType
+            }),
+            ...(query.status && {
+                status: query.status as TContentStatusType
+            }),
+        },
+        orderBy: {
+            id: "desc"
+        }
+    })
+    .withPages({
+        page: query.page,
+        limit: query.take,
         includePageCount: true
+    })
+
+    return res
+}
+
+export const findContentWithChecklists = async (query: TFindContentChecklistsQuery) => {
+    const res = await prisma.content.findFirst({
+        select: {
+            id: true,
+            userId: true,
+            channelId: true,
+            description: true,
+            title: true,
+            formatType: true,
+            status: true,
+            priority: true,
+            scheduledDate: true,
+            publishedDate: true,
+            publishedUrl: true,
+            createdAt: true,
+            updatedAt: true,
+            scriptDraft: true,
+            channel: {
+                select: {
+                    id: true,
+                    handleName: true,
+                    platform: true
+                }
+            },
+            checklists: {
+                select: {
+                    id: true,
+                    contentId: true,
+                    taskName: true,
+                    userId: true,
+                    isCompleted: true,
+                    user: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    },
+                }
+            }
+        },
+        where: {
+            id: query.contentId,
+            userId: query.userId
+        },
     })
 
     return res
@@ -50,7 +154,8 @@ export const findContentById = async (contentId: number) => {
         select: {
             id: true,
             userId: true,
-            status: true
+            status: true,
+            scheduledDate: true
         },
         where: {
             id: contentId
@@ -77,6 +182,7 @@ export const updateContent = async (command: TUpdateContentCommand & {id: number
         const res = await prisma.content.update({
             data: {
                 ...command,
+                
                 scheduledDate: command.scheduledDate ? new Date(command.scheduledDate) : null
             },
             where: {

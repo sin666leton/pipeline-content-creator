@@ -12,7 +12,13 @@ const updateContentUsecase = async (command: TUpdateContentCommand & {userId: nu
 
     if (command.scriptDraft && content.status !== "scripting") throw new ConflictError("Draft hanya boleh ditambahkan ketika progress konten sudah mencapai scripting")
 
-    const result = await updateContent(command)
+    const result = await updateContent({
+    ...command,
+        scheduledDate:
+            command.scheduledDate ??
+            content.scheduledDate?.toISOString() ??
+            new Date().toISOString(),
+    });
 
     return {
         id: Number(result.id),

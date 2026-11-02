@@ -1,5 +1,4 @@
 import type {Request, Response} from "express"
-import paginateContentWithChannelUsecase from "../../application/usecases/paginateContentWithChannelUsecase"
 import { TAuthUser } from "../../../shared/infrastructure/middlewares/authMiddleware"
 import { TContentStatusType } from "../../application/dtos/content.data"
 import createContentUsecase from "../../application/usecases/createContentUsecase"
@@ -9,22 +8,63 @@ import updateContentUsecase from "../../application/usecases/updateContentUsecas
 import deleteContentUsecase from "../../application/usecases/deleteContentUsecase"
 import updateStatusContentUsecase from "../../application/usecases/updateStatusContentUsecase"
 import { ContentStatus } from "@prisma/client"
+import getContentWithChannelUsecase from "../../application/usecases/getContentWithChannelUsecase"
+import findContentWithChecklistsUsecase from "../../application/usecases/findContentWithChecklistsUsecase"
+import paginateContentUsecase from "../../application/usecases/paginateContentUsecase"
 
-export const index = async (req: Request<{}, {}, {}, {status?: TContentStatusType, channel_id?: string, page?: string}>, res: Response<{}, {filters: {status: TContentStatusType|undefined}}>) => {
-    const {channel_id, page} = req.query
+export const paginate = async (
+    req: Request<{}, {}, {}, {page?: string, platform?: string, format?: string, status?: string}>,
+    res: Response<{}, {filters: {status: TContentStatusType|undefined, platform: string|undefined, format: string|undefined}}>
+) => {
+    const {page} = req.query
+    const {status, platform, format} = res.locals.filters
 
-    const result = await paginateContentWithChannelUsecase({
-        currentPage: page ? Number(page) : 1,
-        perPage: 10,
-        status: res.locals.filters ? res.locals.filters.status : undefined,
+    const result = await paginateContentUsecase({
+        page: page ? parseInt(page) : 1,
+        userId: Number((req.user as TAuthUser).id),
+        platform: platform,
+        format: format,
+        status: status
+    })
+    
+    return res
+        .status(200)
+        .json(result)
+}
+
+export const index = async (
+    req: Request<{}, {}, {}, {format?: string, status?: string}>,
+    res: Response<{}, {filters: {status: TContentStatusType|undefined, platform: string|undefined}}>
+) => {
+    const {format} = req.query
+    const {status, platform} = res.locals.filters
+
+    const result = await getContentWithChannelUsecase({
+        status: status,
         userId: (req.user as TAuthUser).id,
-        channelId: Number(channel_id)
+        platform: platform,
+        format: format,
     })
     
     return res
         .status(200)
         .json({
             data: result
+        })
+}
+
+export const read = async (req: Request<{id: string}>, res: Response) => {
+    const {id} = req.params
+
+    const content = await findContentWithChecklistsUsecase({
+        contentId: parseInt(id),
+        userId: Number((req.user as TAuthUser).id)
+    })
+
+    return res
+        .status(200)
+        .json({
+            data: content
         })
 }
 

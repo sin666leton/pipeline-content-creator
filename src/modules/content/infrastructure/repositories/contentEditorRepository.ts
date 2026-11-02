@@ -1,8 +1,8 @@
 import prisma from "../../../../core/databases/prisma";
 import { TGetContentQuery } from "../../application/dtos/content.query";
 
-export const paginateEditorContent = async (query: TGetContentQuery) => {
-    const res = await prisma.contentChecklist.paginate({
+export const getContentWhereEditorBelongsTo = async (query: TGetContentQuery) => {
+    const res = await prisma.contentChecklist.findMany({
         select: {
             id: true,
             userId: true,
@@ -34,15 +34,14 @@ export const paginateEditorContent = async (query: TGetContentQuery) => {
             }),
             ...(query.status && {
                 status: query.status
+            }),
+            ...(query.format && {
+                status: query.format
             })
         },
         orderBy: {
             id: "desc"
         }
-    }).withPages({
-        limit: query.perPage,
-        page: query.currentPage,
-        includePageCount: true
     })
 
     return res
