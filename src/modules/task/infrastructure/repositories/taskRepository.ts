@@ -1,5 +1,7 @@
+import { Prisma } from "@prisma/client";
 import prisma from "../../../../core/databases/prisma";
 import { TCreateTaskCommand, TToggleStatusTaskCommand } from "../../application/dtos/task.command";
+import ItemNotFoundError from "../../../shared/application/exceptions/ItemNotFoundError";
 
 export const findTaskById = async (id: number) => {
     const res = await prisma.contentChecklist.findUnique({
@@ -53,5 +55,23 @@ export const toggleStatusTask = async (command: TToggleStatusTaskCommand & {curr
         ...res,
         id: Number(res.id),
         userId: Number(res.userId)
+    }
+}
+
+export const deleteTask = async (id: number) => {
+    try {
+        const res = await prisma.contentChecklist.delete({
+            where: {
+                id: id
+            }
+        })
+
+        return res
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === "P2025") throw new ItemNotFoundError("Tugas")
+        }
+
+        throw error
     }
 }

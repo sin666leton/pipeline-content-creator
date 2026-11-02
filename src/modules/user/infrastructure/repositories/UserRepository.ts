@@ -18,6 +18,9 @@ const getEditorAndCreator = async (query: TGetEditorAndCreator) => {
                 },
             ],
         },
+        orderBy: {
+            role: "asc"
+        }
     })
 }
 

@@ -22,6 +22,7 @@ const findContentWithChecklistsUsecase = async (query: TFindContentChecklistsQue
             status: content.status,
             scriptDraft: content.scriptDraft,
             priority: content.priority,
+            scheduledDate: content.scheduledDate,
             publishedDate: content.publishedDate,
             publishedUrl: content.publishedUrl,
             createdAt: timestampFormatterService(content.createdAt)

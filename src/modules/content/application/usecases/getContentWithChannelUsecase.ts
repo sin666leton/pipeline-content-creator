@@ -19,6 +19,7 @@ const getContentWithChannelUsecase = async (query: TGetContentQuery) => {
                     status: content.status,
                     priority: content.priority,
                     scheduledDate: content.scheduledDate,
+                    scriptDraft: content.scriptDraft
                 },
                 channel: {
                     id: Number(content.channelId),

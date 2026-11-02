@@ -154,7 +154,8 @@ export const findContentById = async (contentId: number) => {
         select: {
             id: true,
             userId: true,
-            status: true
+            status: true,
+            scheduledDate: true
         },
         where: {
             id: contentId
@@ -181,6 +182,7 @@ export const updateContent = async (command: TUpdateContentCommand & {id: number
         const res = await prisma.content.update({
             data: {
                 ...command,
+                
                 scheduledDate: command.scheduledDate ? new Date(command.scheduledDate) : null
             },
             where: {

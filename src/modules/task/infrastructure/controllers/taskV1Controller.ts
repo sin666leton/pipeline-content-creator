@@ -4,6 +4,7 @@ import { TCreateTaskCommand } from "../../application/dtos/task.command"
 import updateStatusTaskUsecase from "../../application/usecases/updateStatusTaskUsecase"
 import { TAuthUser } from "../../../shared/infrastructure/middlewares/authMiddleware"
 import { createLog, updateLog } from "../../../shared/infrastructure/services/loggerService"
+import deleteTaskUsecase from "../../application/usecases/deleteTaskUsecase"
 
 export const store = async (req: Request<{id: string}, {}, TCreateTaskCommand>, res: Response) => {
     const {taskName, userId} = req.body
@@ -46,4 +47,12 @@ export const update = async (req: Request<{id: string}>, res: Response) => {
         .json({
             data: result
         })
+}
+
+export const destroy = async (req: Request<{id: string}>, res: Response) => {
+    await deleteTaskUsecase(Number(parseInt(req.params.id)))
+
+    return res
+        .status(204)
+        .json()
 }
