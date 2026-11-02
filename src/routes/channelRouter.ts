@@ -7,7 +7,7 @@ import { roleMiddleware } from "../modules/shared/infrastructure/middlewares/rol
 // v1
 const v1ChannelRouter = Router()
 
-v1ChannelRouter.get('/v1/channels', roleMiddleware('creator'), index)
+v1ChannelRouter.get('/v1/channels', roleMiddleware('creator', 'admin'), index)
 v1ChannelRouter.get('/v1/channels/list', roleMiddleware('creator'), list)
 v1ChannelRouter.post('/v1/channels', roleMiddleware('creator') ,validateRequest(CreateChannelSchema), store)
 v1ChannelRouter.delete('/v1/channels/:id', roleMiddleware('creator', 'admin'), destroy)

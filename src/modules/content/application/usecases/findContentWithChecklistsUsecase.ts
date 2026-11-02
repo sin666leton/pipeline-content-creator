@@ -35,6 +35,16 @@ const findContentWithChecklistsUsecase = async (query: TFindContentChecklistsQue
                 id: Number(checklist.userId),
                 name: checklist.user.name
             }
+        })),
+        metrics: content.metrics.map(metric => ({
+            id: Number(metric.id),
+            comments: metric.commentsCount,
+            views: metric.viewsCount,
+            shares: metric.sharesCount,
+            likes: metric.likesCount,
+            recordedAt: metric.recordedAt
+
+
         }))
     }
 }

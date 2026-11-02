@@ -8,6 +8,7 @@ import contentRouter from "./routes/contentRouter"
 import taskRouter from "./routes/taskRouter"
 import authRouter from "./routes/authRouter"
 import userRouter from "./routes/userRouter"
+import metricRouter from "./routes/metricRouter"
 
 const app = express()
 
@@ -26,6 +27,7 @@ app.use('/api', v1ChannelRouter)
 app.use('/api', contentRouter)
 app.use('/api', taskRouter)
 app.use('/api', userRouter)
+app.use('/api', metricRouter)
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof ApplicationException) {

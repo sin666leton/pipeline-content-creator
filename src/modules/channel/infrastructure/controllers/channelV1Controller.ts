@@ -8,8 +8,8 @@ import paginateChannelUsecase from "../../application/usecases/paginateChannelUs
 import getListChannelUsecase from "../../application/usecases/getListChannelUsecase"
 
 export const index = async (req: Request, res: Response) => {
-    const userId = (req.user as TAuthUser).id
-    const pagination = await paginateChannelUsecase(Number(req.query.page || 1), userId)
+    const user = (req.user as TAuthUser)
+    const pagination = await paginateChannelUsecase(Number(req.query.page || 1), user.role === "admin" ? 0 : Number(user.id))
     
     return res
         .status(200)

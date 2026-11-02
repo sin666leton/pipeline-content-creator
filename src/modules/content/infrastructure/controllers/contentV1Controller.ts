@@ -18,10 +18,11 @@ export const paginate = async (
 ) => {
     const {page} = req.query
     const {status, platform, format} = res.locals.filters
+    const user = req.user as TAuthUser
 
     const result = await paginateContentUsecase({
         page: page ? parseInt(page) : 1,
-        userId: Number((req.user as TAuthUser).id),
+        userId: user.role === "admin" ? 0 : Number(user.id),
         platform: platform,
         format: format,
         status: status
@@ -154,7 +155,7 @@ export const destroy = async (req: Request<{id: string}>, res: Response) => {
     const currentUser = req.user as TAuthUser
     const result = await deleteContentUsecase({
         id: Number(id),
-        userId: Number(currentUser.id)
+        userId: currentUser.role === 'admin' ? 0 : Number(currentUser.id)
     })
 
     deleteLog(
