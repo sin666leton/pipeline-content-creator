@@ -74,7 +74,9 @@ export const paginateContent = async (query: TPaginateContentQuery & {take: numb
             }
         },
         where: {
-            userId: query.userId,
+            ...(query.userId && {
+                userId: query.userId
+            }),
             ...(query.platform && {
                 channel: {
                     platform: query.platform
@@ -137,6 +139,17 @@ export const findContentWithChecklists = async (query: TFindContentChecklistsQue
                             name: true
                         }
                     },
+                }
+            },
+            metrics: {
+                select: {
+                    id: true,
+                    contentId: true,
+                    commentsCount: true,
+                    recordedAt: true,
+                    likesCount: true,
+                    viewsCount: true,
+                    sharesCount: true
                 }
             }
         },
@@ -221,8 +234,10 @@ export const deleteContent = async (command: TDeleteContentCommand) => {
     try {
         const res = await prisma.content.delete({
             where: {
-            id: command.id,
-            userId: command.userId
+                id: command.id,
+                ...(command.userId && {
+                    userId: command.userId
+                }),
             }
         })
 

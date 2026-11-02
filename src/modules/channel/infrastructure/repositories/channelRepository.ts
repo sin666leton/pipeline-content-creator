@@ -6,7 +6,9 @@ import { Prisma } from "@prisma/client"
 export const paginateChannel = async (currentPage: number, perPage: number, userId: number) => {
     const res = await prisma.channel.paginate({
         where: {
-            userId: Number(userId)
+            ...(userId && {
+                userId: userId
+            }),
         },
         orderBy: {
             id: "desc"
