@@ -24,6 +24,7 @@ const updateStatusContentUsecase = async (command: TUpdateStatusContentCommand &
         id: Number(res.id),
         title: res.title,
         status: res.status,
+        scriptDraft: res.scriptDraft,
         publishedUrl: res.publishedUrl,
         publishedDate: res.publishedDate
     }
