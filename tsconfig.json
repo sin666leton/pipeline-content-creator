@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    /* File Layout & Output */
+    "rootDir": "./",
+    "outDir": "./dist",
+    "sourceMap": true,
+    "declaration": false,
+
+    /* Environment & Modules */
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022"],
+    
+    /* Interop & Typechecking */
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "noUncheckedIndexedAccess": true
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist", "prisma/migrations"]
+}

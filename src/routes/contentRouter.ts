@@ -1,0 +1,18 @@
+import { Router } from "express";
+import { roleMiddleware } from "../modules/shared/infrastructure/middlewares/roleMiddleware";
+import { destroy, index, paginate, read, store, update, updateStatus } from "../modules/content/infrastructure/controllers/contentV1Controller";
+import { validateRequest } from "../modules/shared/infrastructure/middlewares/validateRequest";
+import validateFilterQueryMiddleware from "../modules/content/infrastructure/middlewares/validateFilterQueryMiddleware";
+import { CreateContentSchema, UpdateContentSchema, UpdateStatusContentSchema } from "../modules/content/infrastructure/validations/content.validation";
+
+const contentRouter = Router()
+
+contentRouter.get('/v1/contents', validateFilterQueryMiddleware, roleMiddleware('creator', 'admin'), paginate)
+contentRouter.get('/v1/contents/list', validateFilterQueryMiddleware, roleMiddleware('creator', 'editor'), index)
+contentRouter.post('/v1/contents', roleMiddleware('creator'), validateRequest(CreateContentSchema), store)
+contentRouter.get('/v1/contents/:id', roleMiddleware('creator', 'editor'), read)
+contentRouter.put('/v1/contents/:id', roleMiddleware('creator'), validateRequest(UpdateContentSchema), update)
+contentRouter.put('/v1/contents/:id/status', roleMiddleware('creator'), validateRequest(UpdateStatusContentSchema), updateStatus)
+contentRouter.delete('/v1/contents/:id', roleMiddleware('creator', 'admin'), destroy)
+
+export default contentRouter
