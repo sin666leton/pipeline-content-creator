@@ -155,7 +155,9 @@ export const findContentWithChecklists = async (query: TFindContentChecklistsQue
         },
         where: {
             id: query.contentId,
-            userId: query.userId
+            ...(query.userId && {
+                userId: query.userId
+            })
         },
     })
 

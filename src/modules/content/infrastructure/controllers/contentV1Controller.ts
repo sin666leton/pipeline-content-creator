@@ -56,10 +56,11 @@ export const index = async (
 
 export const read = async (req: Request<{id: string}>, res: Response) => {
     const {id} = req.params
+    const user = (req.user as TAuthUser)
 
     const content = await findContentWithChecklistsUsecase({
         contentId: parseInt(id),
-        userId: Number((req.user as TAuthUser).id)
+        userId: user.role === "editor" ? 0 : Number(user.id)
     })
 
     return res
